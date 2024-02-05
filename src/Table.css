@@ -1,0 +1,15 @@
+.table th {
+  overflow: hidden;
+  position: relative;
+}
+
+.table th::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 10px; /* Width of the resizable area */
+  cursor: col-resize;
+}
+
