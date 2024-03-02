@@ -6,6 +6,8 @@ import Table from './components/Table';
 import FormComponent from './components/FormComponent';
 import Login from './components/Login';
 import fetchData from './Services/fetchData';
+import AdminPage from './components/admin';
+import AdminPage2 from './components/admin2';
 
 const App = () => {
   const [fetchedData, setFetchedData] = useState([]);
@@ -19,10 +21,12 @@ const App = () => {
 
   useEffect(() => {
     // Fetch JWT token (e.g., from local storage or wherever you store it)
-    const storedToken = localStorage.getItem('accessToken');
+    // const storedToken = localStorage.getItem('accessToken');
+    const storedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA5NDAzNzk1LCJpYXQiOjE3MDkzMTczOTUsImp0aSI6ImQ4NzRiMmVlOWJhMzQ2ODY4NzU4ZmIwZjU1NGY5MjVjIiwidXNlcl9pZCI6MX0.AZNdWFAWWa8H-hQxjLoYyD9yDe-6piEo14XpTPxzdb0";
     if (storedToken) {
       setJwtToken(storedToken);
     }
+    console.log(storedToken);
 
     // Fetch data from your APIs using the JWT token
     const fetchDataAsync = async () => {
@@ -47,6 +51,7 @@ const App = () => {
 
         
           setLoading(false); // Set loading to false when data is fetched
+          console.log(data5)
         }
       } catch (error) {
         // Handle authentication error or other issues
@@ -71,7 +76,8 @@ const App = () => {
         ) : (
           // Render routes and components when data is loaded
           <Routes>
-            
+            <Route path="/admin" element={<AdminPage />} /> {/* Add this route */}
+            <Route path="/admin2" element={<AdminPage2 />} /> {/* Add this route */}
             <Route path="/candidatetable" element={<Table fetchedData={fetchedData} />} />
             <Route path="/joblist" element={<Table fetchedData={jobList} />} />
             <Route path="/clientlist" element={<Table fetchedData={clientList} />} />
