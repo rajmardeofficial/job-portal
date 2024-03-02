@@ -1,20 +1,11 @@
 // App.js
-
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-import CandidateList from "./components/CandidateList";
-import JobList from "./components/JobList";
-import ClientList from "./components/ClientList";
-import InterviewList from "./components/InterviewList";
-import Login from "./components/Login";
-import CandidateForm from "./components/CandidateForm";
-import JobPostingForm from "./components/AddJob";
-import AddClient from "./components/AddClient";
-import AdminPage from './components/admin';
-import AdminPage2 from './components/admin2';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Table from './components/Table';
+import FormComponent from './components/FormComponent';
+import Login from './components/Login';
+import fetchData from './Services/fetchData';
 
 const App = () => {
   const [dropdownData, setDropdownData] = useState([]);
@@ -31,22 +22,34 @@ const App = () => {
 
     const fetchDataAsync = async () => {
       try {
-        const dropDown = await fetch(
-          "https://test-jobs.onrender.com/job/api/dropdowns/",
-          {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          }
-        );
-        setDropdownData(dropDown); 
-      } catch (e) {
-        console.log(e);
+        if (jwtToken) {
+          // Fetch data from the first API
+          const data1 = await fetchData("https://test-jobs.onrender.com/candidate/api/", jwtToken);
+          setFetchedData(data1);
 
+          // Fetch data from the second API (dropdowns)
+          const data2 = await fetchData("https://test-jobs.onrender.com/job/api/dropdowns/", jwtToken);
+          setDropdownData(data2);
+
+          const data3 = await fetchData("https://test-jobs.onrender.com/job/api/", jwtToken)
+          setJobList(data3)
+          
+          const data4 = await fetchData("https://test-jobs.onrender.com/client/api/", jwtToken)
+          setClientList(data4)
+
+          const data5 = await fetchData("https://test-jobs.onrender.com/interview/api/", jwtToken)
+          setInterviewList(data5)
+
+        
+          setLoading(false); // Set loading to false when data is fetched
+        }
+      } catch (error) {
+        // Handle authentication error or other issues
+        console.error("Error fetching data:", error);
+
+        setLoading(false); // Set loading to false in case of an error
       }
-    }; 
-
-    console.log(dropdownData);
+    };
 
     fetchDataAsync();
   }, []);
@@ -55,28 +58,21 @@ const App = () => {
     <Router>
       <div>
         <Navbar />
-        <Routes>
-          <Route path="/admin" element={<AdminPage />} /> {/* Add this route */}
-          <Route path="/admin2" element={<AdminPage2 />} /> {/* Add this route */}
-          <Route path="/candidatetable" element={<CandidateList />} />
-          <Route path="/joblist" element={<JobList />} />
-          <Route path="/clientlist" element={<ClientList />} />
-          <Route path="/interviewlist" element={<InterviewList />} />
-
-          <Route
-            path="/candidateform"
-            element={<CandidateForm />}
-          />
-          <Route
-            path="/addjob"
-            element={<JobPostingForm />}
-          />
-           <Route
-            path="/addclient"
-            element={<AddClient/>}
-          />
-          <Route path="/login" element={<Login />} />
-        </Routes>
+        {loading ? (
+          // Render a loading indicator here
+          <div>Loading...</div>
+        ) : (
+          // Render routes and components when data is loaded
+          <Routes>
+            
+            <Route path="/candidatetable" element={<Table fetchedData={fetchedData} />} />
+            <Route path="/joblist" element={<Table fetchedData={jobList} />} />
+            <Route path="/clientlist" element={<Table fetchedData={clientList} />} />
+            <Route path="/interviewlist" element={<Table fetchedData={interviewList} />} />
+            <Route path="/form" element={<FormComponent dropdownData={dropdownData} />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+        )}
       </div>
     </Router>
   );
